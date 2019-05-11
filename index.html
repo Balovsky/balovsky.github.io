@@ -16,33 +16,63 @@
     <link rel="stylesheet" href="style.css">
     <link href="https://fonts.googleapis.com/css?family=Open+Sans:400,700&amp;subset=latin-ext" rel="stylesheet">
 
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.2.0/jquery.min.js"></script>
+
+    <script src="jquery.scrollTo.min.js"></script>
+    <script>
+        jQuery(function ($) {
+            // przewin do odpowiedniech czesci strony
+            $.scrollTo(0);
+
+            $('#navonas').click(function () {
+                $.scrollTo($('#onas'), 500);
+            });
+            $('#navkontakt').click(function () {
+                $.scrollTo($('#kontakt'), 500);
+            });
+            
+        // plynna animacja przewijania strony
+            $('.scrollup').click(function () {
+                $.scrollTo($('body'), 1000);
+            });
+        });
+
+        // Pojawienie sie przycisku bocznego po zjechaniu w dol
+        $(window).scroll(function () {
+            if ($(this).scrollTop() > 300) $('.scrollup').fadeIn();
+            else $('.scrollup').fadeOut();
+        });
+    </script>
+
 </head>
+
 <body>
+    
     <header>
+        <a href="#" class="scrollup"></a>
         <nav class="navbar navbar-dark bg-jumpers navbar-expand-lg">
             <div class="container">
-               
-                    <a class="navbar-brand" href="index.html"><img src="img/logo.png" width="310"
-                            height="83"
-                            class="d-inline-block mr-1 align-bottom my-lg-3" alt=""></a>
-                    <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#mainmenu"
-                        aria-controls="mainmenu" aria-expanded="false" aria-label="Przełącznik nawigacji">
-                        <span class="navbar-toggler-icon"></span>
-                    </button>
-                    <div class="collapse navbar-collapse navig" id="mainmenu">
-                        <ul class="navbar-nav ">
-                            <li class="nav-item ">
-                                <a class="nav-link" href="about.html">o nas</a>
-                            </li>
-                            <li class="nav-item pl-5">
-                                <a class="nav-link" href="photos.html">zdjęcia</a>
-                            </li>
-                            <li class="nav-item pl-5">
-                                <a class="nav-link" href="contact.html">kontakt</a>
-                            </li>
-                        </ul>
-                    </div>
+
+                <a class="navbar-brand" href="index.html"><img src="img/logo.png" width="310" height="83"
+                        class="d-inline-block mr-1 align-bottom my-lg-3" alt=""></a>
+                <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#mainmenu"
+                    aria-controls="mainmenu" aria-expanded="false" aria-label="Przełącznik nawigacji">
+                    <span class="navbar-toggler-icon"></span>
+                </button>
+                <div class="collapse navbar-collapse navig" id="mainmenu">
+                    <ul class="navbar-nav ">
+                        <li class="nav-item ">
+                            <a class="nav-link" id="navonas" href="#onas">o nas</a>
+                        </li>
+                        <li class="nav-item pl-5">
+                            <a class="nav-link" href="photos.html">zdjęcia</a>
+                        </li>
+                        <li class="nav-item pl-5">
+                            <a class="nav-link" id="navkontakt" href="#kontakt">kontakt</a>
+                        </li>
+                    </ul>
                 </div>
+            </div>
             </div>
         </nav>
     </header>
@@ -50,13 +80,29 @@
         <section class="wrapper">
             <div class="container">
                 <div class="row">
-                    <figuer class="slid">
-                        <img class="mySlides" src="slider/1.jpg" style="width:100%">
-                        <img class="mySlides" src="slider/2.jpg" style="width:100%">
-                        <img class="mySlides" src="slider/3.jpg" style="width:100%">
-                        <img class="mySlides" src="slider/4.jpg" style="width:100%">
+                    <figuer class="slid mx-auto">
+                        <img class="mySlides" src="slider/25032009198.jpg" style="width:100%">
+                        <img class="mySlides" src="slider/27032009209.jpg" style="width:100%">
+                        <img class="mySlides" src="slider/DSC00114.jpg" style="width:100%">
+                        <img class="mySlides" src="slider/Hounslow-20120127-00143.jpg" style="width:100%">
+                        <img class="mySlides" src="slider/IMG-20111010-00039.jpg" style="width:100%">
+                        <img class="mySlides" src="slider/IMG-20111217-00106.jpg" style="width:100%">
+                        <img class="mySlides" src="slider/IMG_5973.jpg" style="width:100%">
+                        <img class="mySlides" src="slider/IMG_5986.jpg" style="width:100%">
+                        <img class="mySlides" src="slider/IMG_6039.jpg" style="width:100%">
+                        <img class="mySlides" src="slider/IMG_6044.jpg" style="width:100%">
+                        <img class="mySlides" src="slider/IMG_6053.jpg" style="width:100%">
+                        <img class="mySlides" src="slider/IMG_6078.jpg" style="width:100%">
+                        <img class="mySlides" src="slider/IMG_6096.jpg" style="width:100%">
+                        <img class="mySlides" src="slider/IMG_6096.jpg" style="width:100%">
+                        <img class="mySlides" src="slider/IMG_6951.jpg" style="width:100%">
+                        <img class="mySlides" src="slider/IMG_6967.jpg" style="width:100%">
+                        <img class="mySlides" src="slider/IMG_6970.jpg" style="width:100%">
+                        <img class="mySlides" src="slider/IMG_6981.jpg" style="width:100%">
+                        <img class="mySlides" src="slider/Richmond-upon-Thames-20111130-00089.jpg" style="width:100%">
+                        <img class="mySlides" src="slider/PICT0069.jpg" style="width:100%">
                     </figuer>
-                    <span class="tekst">
+                    <span class="tekst" id="onas">
                         <p>Firma "CARPENTER" specjalizuje się w wytwarzaniu mebli
                         na zamówienie. Nasze produkty powstają z selekcjonowanego drewna
                         o najwyższej jakości. Nasi pracownicy posiadają kilkunastoletnie
@@ -110,7 +156,7 @@
             </div>
             </div>
         </section>
-        <footer class="page-footer font-small bg-footer pt-4">
+        <footer class="page-footer font-small bg-footer pt-4" id="kontakt">
             <div class="container-fluid text-center text-md-left">
                 <div class="container">
                     <h5 class="text-uppercase">SKONTAKTUJ SIĘ Z NAMI!</h5>
@@ -162,6 +208,7 @@
     integrity="sha384-ZMP7rVo3mIykV+2+9J3UJ46jBk0WLaUAdn689aCwoqbBJiSnjAK/l8WvCWPIPm49" crossorigin="anonymous">
 </script>
 <script src="js/bootstrap.min.js"></script>
+ <!-- pokaz zdjec -->
 <script>
     var myIndex = 0;
     carousel();
@@ -177,6 +224,29 @@
         x[myIndex - 1].style.display = "block";
         setTimeout(carousel, 2000);
     }
+</script>
+<script src="jquery-3.4.0.js"></script>
+
+<script>
+    $(document).ready(function () {
+        var NavY = $('.nav').offset().top;
+
+        var stickyNav = function () {
+            var ScrollY = $(window).scrollTop();
+
+            if (ScrollY > NavY) {
+                $('.nav').addClass('sticky');
+            } else {
+                $('.nav').removeClass('sticky');
+            }
+        };
+
+        stickyNav();
+
+        $(window).scroll(function () {
+            stickyNav();
+        });
+    });
 </script>
 
 </body>
