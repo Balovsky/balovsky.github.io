@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="pl">
+
+<head>
+
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+    <title></title>
+    <meta name="description" content="">
+    <meta name="keywords" content="">
+    <meta name="author" content="">
+    <meta http-equiv="X-Ua-Compatible" content="IE=edge">
+
+    <link rel="stylesheet" href="css/bootstrap.min.css">
+    <link rel="stylesheet" href="style.css">
+    <link href="https://fonts.googleapis.com/css?family=Open+Sans:400,700&amp;subset=latin-ext" rel="stylesheet">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/fotorama/4.6.4/fotorama.css" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/fotorama/4.6.4/fotorama.js"></script>
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+    <header>
+        <nav class="navbar navbar-dark bg-jumpers navbar-expand-lg">
+            <div class="container">
+
+                <a class="navbar-brand" href="index.html"><img src="img/logo.png" width="310" height="83"
+                        class="d-inline-block mr-1 align-bottom my-lg-3" alt=""></a>
+                <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#mainmenu"
+                    aria-controls="mainmenu" aria-expanded="false" aria-label="Przełącznik nawigacji">
+                    <span class="navbar-toggler-icon"></span>
+                </button>
+                <div class="collapse navbar-collapse navig" id="mainmenu">
+                    <ul class="navbar-nav ">
+                        <li class="nav-item ">
+                            <a class="nav-link" href="index.html#onas">o nas</a>
+                        </li>
+                        <li class="nav-item pl-5">
+                            <a class="nav-link active" href="photos.html">zdjęcia</a>
+                        </li>
+                        <li class="nav-item pl-5">
+                            <a class="nav-link" href="index.html#kontakt">kontakt</a>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+            </div>
+        </nav>
+    </header>
+    <section class="wrapper" id="photos">
+
+        <div class="container second-gallery">
+            <div class="row justify-content-center">
+                <div class=" col-md-6 col-lg-3"><a href="#" class="nav-gallery1 ">SCHODY</a></div>
+                <div class="col-md-6 col-lg-3"><a href="#" class="nav-gallery2 ">DRZWI</a></div>
+                <div class="col-md-6 col-lg-3"><a href="#" class="nav-gallery3 ">KUCHNIE</a></div>
+                <div class="col-md-6 col-lg-3"><a href="#" class="nav-gallery4 ">INNE</a></div>
+            </div>
+        </div>  
+        <div class="container">
+            <div class="row justify-content-center">
+                <div class="fotorama">
+                    <img src="https://s.fotorama.io/1.jpg">
+                    <img src="https://s.fotorama.io/2.jpg">
+                    <img src="https://s.fotorama.io/1.jpg">
+                    <img src="https://s.fotorama.io/2.jpg">
+                    <img src="https://s.fotorama.io/1.jpg">
+                    <img src="https://s.fotorama.io/2.jpg">
+                    <img src="https://s.fotorama.io/1.jpg">
+                    <img src="https://s.fotorama.io/2.jpg">
+                    <img src="https://s.fotorama.io/1.jpg">
+                    <img src="https://s.fotorama.io/2.jpg">
+                    <img src="https://s.fotorama.io/1.jpg">
+                    <img src="https://s.fotorama.io/2.jpg">
+                </div>
+            </div>
+        </div>
+    <script>
+        $('.fotorama').fotorama({
+        width: 1500,
+        maxwidth: '100%',
+        ratio: 16/9,
+        allowfullscreen: false,
+        nav: 'thumbs'
+        });
+    </script>
+</body>
+
+</html>
