@@ -1,0 +1,475 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Dla mojej Walentynki</title>
+    
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Dancing+Script:wght@700&family=Quicksand:wght@400;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+    
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-app.js";
+        import { getDatabase, ref, update } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-database.js";
+        
+        // TWOJE DANE FIREBASE
+        const firebaseConfig = {
+            apiKey: "AIzaSyCEqvit3RcLX3xi2G8_seu2vYNZFQL4TW4",
+            authDomain: "podglad-d2799.firebaseapp.com",
+            projectId: "podglad-d2799",
+            storageBucket: "podglad-d2799.firebasestorage.app",
+            messagingSenderId: "682321294657",
+            appId: "1:682321294657:web:14626d235e13e5a2bbddc0",
+            databaseURL: "https://podglad-d2799-default-rtdb.europe-west1.firebasedatabase.app"
+        };
+        
+        try {
+            const app = initializeApp(firebaseConfig);
+            const db = getDatabase(app);
+            window.updateStatus = function(action, details = "") {
+                update(ref(db, 'walentynki/live'), { lastAction: action, details: details, timestamp: Date.now() });
+            }
+        } catch(e) { console.log("Firebase off"); }
+    </script>
+
+    <style>
+        /* --- STYL I OPTYMALIZACJA --- */
+        body, html {
+            margin: 0; padding: 0;
+            width: 100%; height: 100%;
+            overflow-x: hidden;
+            overscroll-behavior-y: none; /* Blokada odbijania (białego tła) */
+            font-family: 'Quicksand', sans-serif;
+            color: #880e4f;
+        }
+
+        /* 1. TŁO NA SZTYWNO (Gradient) */
+        #fixed-background {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: linear-gradient(180deg, #fff0f3 0%, #ffe6ea 40%, #f8bbd0 100%);
+            z-index: -999; /* Najniższa warstwa */
+            transform: translate3d(0,0,0);
+        }
+
+        /* 2. WARSTWA SERDUSZEK (TROSZKĘ WYŻEJ NIŻ TŁO) */
+        .bg-hearts {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            pointer-events: none; 
+            z-index: -10; /* Nad gradientem, pod tekstem */
+            overflow: hidden;
+        }
+        
+        .heart-bg {
+            position: absolute; bottom: -50px;
+            color: rgba(233, 30, 99, 0.4); /* Wyraźniejszy kolor */
+            animation: floatUp 15s linear infinite;
+            font-size: 24px; /* Większe serca */
+            will-change: transform; /* Optymalizacja płynności */
+        }
+
+        @keyframes floatUp {
+            0% { transform: translateY(0) rotate(0deg); opacity: 0; }
+            10% { opacity: 0.8; }
+            100% { transform: translateY(-110vh) rotate(360deg); opacity: 0; }
+        }
+
+        /* --- PRELOADER --- */
+        #loader-overlay {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: #ffe6ea; z-index: 99999;
+            display: flex; flex-direction: column; justify-content: center; align-items: center;
+            transition: opacity 0.5s ease-out;
+        }
+        .loader-heart { font-size: 4rem; color: #ff4081; animation: heartbeat 1.2s infinite; }
+        .loader-text { margin-top: 20px; color: #d81b60; font-weight: bold; font-size: 1.2rem; }
+        @keyframes heartbeat { 0% { transform: scale(1); } 15% { transform: scale(1.3); } 30% { transform: scale(1); } 45% { transform: scale(1.3); } 100% { transform: scale(1); } }
+
+        /* --- INTRO --- */
+        #intro {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100vh;
+            background: #fff0f5; /* Pełne tło zakrywające grę */
+            z-index: 9999;
+            display: flex; flex-direction: column; justify-content: center; align-items: center; text-align: center;
+            transition: opacity 0.8s ease-out; padding: 20px; box-sizing: border-box; opacity: 0;
+        }
+        h1 { font-family: 'Dancing Script', cursive; font-size: 4rem; color: #d81b60; margin-bottom: 10px; }
+        p.intro-text { font-size: 1.2rem; margin-bottom: 40px; color: #880e4f; }
+
+        .buttons { position: relative; width: 100%; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 20px; z-index: 10000; }
+        button { border: none; border-radius: 50px; cursor: pointer; font-family: 'Quicksand', sans-serif; transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
+        .btn-yes { background: linear-gradient(45deg, #ff4081, #f50057); color: white; font-size: 1.5rem; padding: 20px 60px; font-weight: 700; z-index: 2; animation: pulse 2s infinite; box-shadow: 0 10px 20px rgba(216, 27, 96, 0.2); }
+        .btn-no { background: #fff; color: #ff4081; border: 1px solid #ffc1e3; font-size: 1rem; padding: 10px 30px; }
+        @keyframes pulse { 0% { transform: scale(1); } 50% { transform: scale(1.05); } 100% { transform: scale(1); } }
+
+        /* --- KONTENER I TEKSTY --- */
+        #road-container { display: none; padding-bottom: 50px; position: relative; z-index: 10; overflow: hidden; }
+        
+        #thread-svg { position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: -1; pointer-events: none; }
+        .thread-path { fill: none; stroke-linecap: round; }
+
+        /* Płynne teksty (bez rozmycia dla wydajności) */
+        .story-step { min-height: 60vh; display: flex; justify-content: center; align-items: center; opacity: 0; transform: translateY(30px); transition: opacity 0.6s ease-out, transform 0.6s ease-out; padding: 20px; text-align: center; position: relative; }
+        .story-text { 
+            background: #fff; 
+            padding: 25px; border-radius: 20px; font-size: 1.3rem; line-height: 1.5; color: #880e4f; 
+            box-shadow: 0 5px 20px rgba(216, 27, 96, 0.1); 
+            border: 2px solid #ffe6ea; 
+            max-width: 85%; 
+            transform: rotate(-1deg);
+            will-change: transform, opacity;
+        }
+        .story-step:nth-child(even) .story-text { transform: rotate(1deg); }
+        .visible { opacity: 1; transform: translateY(0) rotate(0); }
+        .passed { opacity: 0; transform: translateY(-30px); }
+
+        /* --- FINAŁ --- */
+        #final-section { min-height: 100vh; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 20px; text-align: center; }
+        .final-title { font-family: 'Dancing Script', cursive; font-size: 3rem; color: #c2185b; margin-bottom: 20px; }
+        .scratch-container { display: flex; flex-direction: column; gap: 20px; margin-top: 20px; width: 100%; max-width: 320px; }
+        .scratch-card-wrapper { position: relative; width: 300px; height: 160px; margin: 0 auto; border-radius: 20px; overflow: hidden; box-shadow: 0 10px 20px rgba(216, 27, 96, 0.1); background: white; border: 1px solid #ffc1e3; }
+        .prize-text { position: absolute; top: 0; left: 0; width: 100%; height: 100%; display: flex; flex-direction: column; justify-content: center; align-items: center; color: #880e4f; font-weight: 700; font-size: 1.3rem; padding: 10px; box-sizing: border-box; background: #fff; z-index: 1; }
+        canvas { position: absolute; top: 0; left: 0; width: 100%; height: 100%; cursor: pointer; transition: opacity 0.5s ease; z-index: 2; }
+        canvas.fade-out { opacity: 0; pointer-events: none; }
+
+        /* --- MODAL --- */
+        #winner-modal { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(255, 255, 255, 0.9); z-index: 10000; display: flex; justify-content: center; align-items: center; opacity: 0; pointer-events: none; transition: opacity 0.3s; }
+        #winner-modal.active { opacity: 1; pointer-events: auto; }
+        .modal-content { background: #fff; width: 85%; max-width: 400px; padding: 30px; border-radius: 30px; text-align: center; box-shadow: 0 10px 40px rgba(233, 30, 99, 0.2); border: 2px solid #ff4081; transform: scale(0.9); transition: transform 0.3s; }
+        #winner-modal.active .modal-content { transform: scale(1); }
+        .modal-title { font-family: 'Dancing Script', cursive; font-size: 2.5rem; color: #d81b60; margin-bottom: 10px; }
+        .modal-prize { font-size: 1.5rem; font-weight: bold; color: #333; margin: 20px 0; }
+        .btn-keep, .btn-search { width: 100%; padding: 15px; border-radius: 50px; border: none; font-size: 1rem; margin-top: 10px; cursor: pointer; font-weight: bold; }
+        .btn-keep { background: #4caf50; color: white; }
+        .btn-search { background: #ff4081; color: white; }
+        #normal-buttons { display: block; }
+        #final-message { display: none; margin-top: 15px; }
+    </style>
+</head>
+<body>
+
+    <div id="fixed-background"></div>
+    
+    <div class="bg-hearts" id="bg-hearts"></div>
+
+    <div id="loader-overlay">
+        <div class="loader-heart">❤️</div>
+        <div class="loader-text">Wczytuję miłość...</div>
+    </div>
+
+    <div id="winner-modal">
+        <div class="modal-content">
+            <div class="modal-title" id="modal-title">🎉 Wygrałaś!</div>
+            <p id="modal-desc">Pod zdrapką ukryte było:</p>
+            <div class="modal-prize" id="modal-prize-text">...</div>
+            <div id="normal-buttons">
+                <button class="btn-keep" onclick="closeModal()">Super, cieszę się ❤️</button>
+                <button class="btn-search" onclick="closeModal()">Szukam dalej...</button>
+            </div>
+            <div id="final-message">
+                <p>...ale chwila!</p>
+                <p>Ponieważ jesteś moją Walentynką...</p>
+                <h2 style="color: #ff4081;">WYGRYWASZ WSZYSTKIE 3 NAGRODY! 🎁🎁🎁</h2>
+                <div style="font-weight: bold; margin: 20px 0; line-height: 1.8;">
+                    1. Wspólna przejażdżka 😋<br>
+                    2. Masaż całego ciała 😈<br>
+                    3. Tatuaż (Voucher ode mnie) ❤️
+                </div>
+                <button class="btn-search" onclick="closeModal()">KOCHAM CIĘ! ❤️</button>
+            </div>
+        </div>
+    </div>
+
+    <audio id="bg-music" preload="auto" loop>
+        <source src="https://assets.mixkit.co/music/preview/mixkit-love-story-piano-solo-2917.mp3" type="audio/mpeg">
+    </audio>
+
+    <div id="intro">
+        <h1>Hej Skarbek...</h1>
+        <p class="intro-text">Mam do Ciebie małe pytanie ❤️</p>
+        <p class="intro-text" style="font-size: 1.5rem; margin-top: -20px; font-weight:bold;">Czy zostaniesz moją Walentynką?</p>
+        <div class="buttons">
+            <button class="btn-yes" id="btnYes" onclick="startJourney()">OCZYWIŚCIE! ❤️</button>
+            <button class="btn-no" id="btnNo" onclick="handleNoClick(event)">NIE 😜</button>
+        </div>
+    </div>
+
+    <div id="road-container">
+        
+        <svg id="thread-svg" xmlns="http://www.w3.org/2000/svg">
+            <defs>
+                <linearGradient id="threadGradient" x1="0%" y1="0%" x2="0%" y2="100%">
+                    <stop offset="0%" style="stop-color:#ff80ab;stop-opacity:0" />
+                    <stop offset="10%" style="stop-color:#ff4081;stop-opacity:0.8" />
+                    <stop offset="90%" style="stop-color:#d81b60;stop-opacity:1" />
+                    <stop offset="100%" style="stop-color:#880e4f;stop-opacity:0" />
+                </linearGradient>
+            </defs>
+            <path id="love-path" class="thread-path" stroke="url(#threadGradient)" stroke-width="2" fill="none" />
+            <g id="knots-group"></g>
+        </svg>
+
+        <div class="story-step"><div class="story-text">Kasiu, kochanie... 😍<br>Zjedź powoli w dół. Chcę Cię zabrać na krótki spacer.</div></div>
+        <div class="story-step"><div class="story-text">Mówiłem Ci to już wiele razy, ale chcę, żebyś to przeczytała... 🥰</div></div>
+        <div class="story-step"><div class="story-text">Jesteś moim Skarbem. ❤️<br>Najcenniejszym, jaki kiedykolwiek udało mi się odnaleźć.</div></div>
+        <div class="story-step"><div class="story-text">Łączy nas piękna historia...<br>I wiesz co? Każdy kolejny rozdział z Tobą jest moim ulubionym. 😘</div></div>
+        <div class="story-step"><div class="story-text">Dajesz mi szczęście, którego nie da się opisać słowami. Przy Tobie wszystko ma sens. 🤩</div></div>
+        <div class="story-step"><div class="story-text">Jesteś moim Wszystkim, Kasiu.<br>Moim spokojem, moją radością i moją Miłością Życia. ❤️</div></div>
+        <div class="story-step"><div class="story-text">Uwielbiam Twój uśmiech (właśnie ten, który masz teraz na buzi!). 😍</div></div>
+        <div class="story-step"><div class="story-text">Dlatego dzisiaj, w Dniu Zakochanych, chcę Cię trochę rozpieścić... 💕</div></div>
+        
+        <div id="final-section">
+            <div class="final-title">Wybierz swój prezent 💙🩷</div>
+            <p style="color: #3b3b3b; max-width: 80%; font-size: 1.8rem;">Kliknij i zdrap wybraną kartę. Możesz wybrać jedną... albo spróbować szczęścia dalej 😉</p>
+            <div class="scratch-container">
+                <div class="scratch-card-wrapper" id="card-1"><div class="prize-text"></div><canvas id="c1"></canvas></div>
+                <div class="scratch-card-wrapper" id="card-2"><div class="prize-text"></div><canvas id="c2"></canvas></div>
+                <div class="scratch-card-wrapper" id="card-3"><div class="prize-text"></div><canvas id="c3"></canvas></div>
+            </div>
+            <p style="margin-top:40px; font-size: 1.8rem; color: #d81b60; opacity: 0.6;">Stworzone z miłości co Ciebie - twój ZBOK :* ❤️</p>
+        </div>
+    </div>
+
+    <script>
+        window.updateStatus = window.updateStatus || function(){};
+
+        // PRELOADER
+        window.addEventListener('load', () => {
+            const loader = document.getElementById('loader-overlay');
+            const intro = document.getElementById('intro');
+            setTimeout(() => {
+                loader.style.opacity = '0';
+                setTimeout(() => {
+                    loader.style.display = 'none';
+                    intro.style.opacity = '1';
+                    if(window.updateStatus) window.updateStatus("NA_STRONIE", "Czeka na start");
+                }, 500);
+            }, 800);
+        });
+
+        const prizesOrder = [
+            { title: "Wspólna przejażdżka... 😋😈", sub: "(Pełna romantycznych chwil)" },
+            { title: "Masaż całego ciała 😈", sub: "(Termin: do końca roku!)" },
+            { title: "Tatuaż ❤️", sub: "(Voucher ode mnie)" }
+        ];
+        let currentPrizeIndex = 0;
+
+        function createHearts() {
+            const container = document.getElementById('bg-hearts');
+            // Zwiększyłem liczbę serduszek do 30
+            for (let i = 0; i < 30; i++) {
+                const heart = document.createElement('div');
+                heart.classList.add('heart-bg');
+                heart.innerHTML = '❤';
+                heart.style.left = Math.random() * 100 + 'vw';
+                heart.style.animationDuration = (Math.random() * 10 + 10) + 's'; // Szybsze
+                heart.style.fontSize = (Math.random() * 25 + 10) + 'px';
+                heart.style.animationDelay = Math.random() * 5 + 's';
+                container.appendChild(heart);
+            }
+        }
+        createHearts();
+
+        function startJourney() {
+            window.updateStatus("START", "Kliknęła TAK");
+            const audio = document.getElementById('bg-music');
+            audio.volume = 0.4;
+            audio.play().catch(e => console.log("Muzyka zablokowana"));
+            
+            document.getElementById('intro').style.opacity = '0';
+            setTimeout(() => {
+                document.getElementById('intro').style.display = 'none';
+                document.getElementById('road-container').style.display = 'block';
+                
+                // Rysujemy elementy teraz, gdy są widoczne
+                drawThread(); 
+                initScratchCard('c1', 'card-1');
+                initScratchCard('c2', 'card-2');
+                initScratchCard('c3', 'card-3');
+            }, 800);
+        }
+
+        let noClickCount = 0;
+        const noTexts = ["Nie? 😢", "Jesteś pewna? 🥺", "Na pewno? 💔", "Pomyśl jeszcze raz!", "Będę płakał... 😭", "Łamiesz mi serce", "No weź...", "Ostatnia szansa!"];
+
+        function handleNoClick(e) {
+            e.preventDefault();
+            window.updateStatus("NIE", "Klika NIE");
+            noClickCount++;
+
+            const btnYes = document.getElementById('btnYes');
+            const btnNo = document.getElementById('btnNo');
+
+            const currentSize = parseFloat(window.getComputedStyle(btnYes).fontSize);
+            const newSize = currentSize * 1.3;
+            btnYes.style.fontSize = `${newSize}px`;
+            
+            const currentPadTop = parseFloat(window.getComputedStyle(btnYes).paddingTop);
+            const currentPadRight = parseFloat(window.getComputedStyle(btnYes).paddingRight);
+            btnYes.style.padding = `${currentPadTop * 1.2}px ${currentPadRight * 1.2}px`;
+
+            const currentNoSize = parseFloat(window.getComputedStyle(btnNo).fontSize);
+            const newNoSize = Math.max(0, currentNoSize * 0.85); 
+            btnNo.style.fontSize = `${newNoSize}px`;
+
+            if (noClickCount <= noTexts.length) {
+                btnNo.innerText = noTexts[noClickCount - 1];
+            } else {
+                btnNo.style.display = 'none';
+            }
+        }
+
+        function drawThread() {
+            const container = document.getElementById('road-container');
+            const path = document.getElementById('love-path');
+            const knotsGroup = document.getElementById('knots-group');
+            const width = container.offsetWidth;
+            const height = container.offsetHeight;
+            if (width === 0 || height === 0) return;
+
+            const amplitude = 40; const frequency = 300; const center = width / 2;
+            let d = `M ${center} 0 `;
+            let points = [];
+            for (let y = 0; y <= height; y += 30) {
+                const x = center + Math.sin(y / frequency * Math.PI) * amplitude;
+                d += `L ${x} ${y} `;
+                points.push({x, y});
+            }
+            path.setAttribute('d', d);
+            knotsGroup.innerHTML = '';
+            for (let i = 0; i < points.length; i += Math.floor(Math.random() * 10 + 10)) {
+                const p = points[i];
+                if (p.y < 100 || p.y > height - 100) continue;
+                const knot = document.createElementNS("http://www.w3.org/2000/svg", "circle");
+                knot.setAttribute("cx", p.x); knot.setAttribute("cy", p.y);
+                knot.setAttribute("r", Math.random() * 3 + 2); knot.setAttribute("fill", "#ec407a"); knot.setAttribute("opacity", "0.8");
+                knotsGroup.appendChild(knot);
+            }
+        }
+
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.classList.add('visible');
+                    entry.target.classList.remove('passed');
+                    window.updateStatus("SCROLL", "Czyta...");
+                } else {
+                    if (entry.boundingClientRect.top < 0) entry.target.classList.add('passed');
+                    entry.target.classList.remove('visible');
+                }
+            });
+        }, { threshold: 0.3 });
+        document.querySelectorAll('.story-step').forEach(step => observer.observe(step));
+        
+        window.addEventListener('resize', () => { if(document.getElementById('road-container').style.display==='block') drawThread(); });
+
+        function closeModal() { document.getElementById('winner-modal').classList.remove('active'); }
+
+        let revealedCount = 0;
+        function triggerWin(prizeName) {
+            revealedCount++;
+            confetti({ particleCount: 100, spread: 60, origin: { y: 0.6 }, colors: ['#ff4081', '#ffffff', '#ffc1e3'] });
+
+            const modal = document.getElementById('winner-modal');
+            const prizeText = document.getElementById('modal-prize-text');
+            const normalButtons = document.getElementById('normal-buttons');
+            const finalMessage = document.getElementById('final-message');
+            prizeText.innerText = prizeName;
+
+            if (revealedCount === 3) {
+                window.updateStatus("FINAŁ", "Wygrała wszystko!");
+                normalButtons.style.display = 'none';
+                finalMessage.style.display = 'none';
+                setTimeout(() => {
+                   prizeText.style.display = 'none';
+                   document.getElementById('modal-desc').style.display = 'none';
+                   finalMessage.style.display = 'block';
+                   confetti({ particleCount: 300, spread: 120, origin: { y: 0.7 }, colors: ['#FFD700', '#ff4081', '#ffffff'] });
+                }, 1000);
+            } else {
+                window.updateStatus("WYGRANA", "Zdrapała nagrodę nr " + revealedCount);
+                prizeText.style.display = 'block';
+                document.getElementById('modal-desc').style.display = 'block';
+                normalButtons.style.display = 'block';
+                finalMessage.style.display = 'none';
+            }
+            modal.classList.add('active');
+        }
+
+        function initScratchCard(canvasId, wrapperId) {
+            const canvas = document.getElementById(canvasId);
+            const wrapper = document.getElementById(wrapperId);
+            const ctx = canvas.getContext('2d');
+            const width = wrapper.offsetWidth; 
+            const height = wrapper.offsetHeight;
+            canvas.width = width; canvas.height = height;
+
+            let isRevealed = false;
+            const gradient = ctx.createLinearGradient(0, 0, width, height);
+            gradient.addColorStop(0, '#e0e0e0'); gradient.addColorStop(1, '#bdbdbd');
+            ctx.fillStyle = gradient; ctx.fillRect(0, 0, width, height);
+            
+            ctx.fillStyle = '#ec407a'; ctx.font = 'bold 20px Quicksand';
+            const textString = "ZDRAP MNIE ✨";
+            const textWidth = ctx.measureText(textString).width;
+            ctx.fillText(textString, (width/2) - (textWidth/2), (height/2) + 8);
+
+            let isDrawing = false;
+
+            function assignPrizeIfNeeded() {
+                if (!canvas.getAttribute('data-prize-assigned')) {
+                    if (currentPrizeIndex < prizesOrder.length) {
+                        const prizeData = prizesOrder[currentPrizeIndex];
+                        const textDiv = wrapper.querySelector('.prize-text');
+                        textDiv.innerHTML = `${prizeData.title}<br><small>${prizeData.sub}</small>`;
+                        canvas.setAttribute('data-prize-name', prizeData.title);
+                        canvas.setAttribute('data-prize-assigned', 'true');
+                        currentPrizeIndex++;
+                        window.updateStatus("DRAPIE", "Drapie kartę " + currentPrizeIndex);
+                    }
+                }
+            }
+
+            function checkScratchPercent() {
+                if (isRevealed) return;
+                const imageData = ctx.getImageData(0, 0, width, height);
+                const pixels = imageData.data;
+                let transparentPixels = 0;
+                for (let i = 0; i < pixels.length; i += 32) { // Optymalizacja
+                    if (pixels[i + 3] === 0) transparentPixels++; 
+                }
+                if ((transparentPixels / (pixels.length / 32)) * 100 > 35) {
+                    isRevealed = true;
+                    canvas.classList.add('fade-out');
+                    triggerWin(canvas.getAttribute('data-prize-name'));
+                }
+            }
+
+            function scratch(x, y) {
+                if (isRevealed) return;
+                ctx.globalCompositeOperation = 'destination-out';
+                ctx.beginPath(); ctx.arc(x, y, 25, 0, Math.PI * 2); ctx.fill();
+            }
+
+            const startDraw = (e) => { isDrawing = true; assignPrizeIfNeeded(); };
+            const endDraw = () => { isDrawing = false; checkScratchPercent(); };
+            const moveDraw = (e) => {
+                if (!isDrawing) return;
+                e.preventDefault();
+                const rect = canvas.getBoundingClientRect();
+                const clientX = e.touches ? e.touches[0].clientX : e.clientX;
+                const clientY = e.touches ? e.touches[0].clientY : e.clientY;
+                scratch(clientX - rect.left, clientY - rect.top);
+            };
+
+            canvas.addEventListener('mousedown', startDraw);
+            canvas.addEventListener('touchstart', startDraw, {passive: false});
+            window.addEventListener('mouseup', endDraw);
+            window.addEventListener('touchend', endDraw);
+            canvas.addEventListener('mousemove', moveDraw);
+            canvas.addEventListener('touchmove', moveDraw, {passive: false});
+        }
+    </script>
+</body>
+</html>
